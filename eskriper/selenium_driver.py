@@ -11,7 +11,7 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-class SeleniumDriver:
+class SeleniumDriver():
 
     def __init__(self, proxy: str = '', user_agent: str = '', headless=True, download_path='./download_files'):
         self._headless = headless
@@ -23,16 +23,16 @@ class SeleniumDriver:
 
     def setup_driver(self):
         self.set_options()
-        self.driver = uc.Chrome()
-        #self.set_proxy()
+        self.driver = uc.Chrome(options=self._options)
         self.driver.maximize_window()
+        
+        if self._headless:
+            params = {'behavior': 'allow', 'downloadPath': self._download_path}
+            self.driver.execute_cdp_cmd('Page.setDownloadBehavior', params)
     
     def set_options(self):
         self._options.headless = self._headless
 
-        if self._user_agent:
-            self._options.add_argument("user-agent=%s" % self._user_agent)
-        
         prefs = {
             "download.default_directory" : self._download_path,
             "profile.default_content_settings": {"images": 2},
@@ -51,6 +51,7 @@ class SeleniumDriver:
 
     def load(self, url, pattern="", by=By.ID, timeout=10):
         self.driver.get(url)
+        logging.info(f'Visiting {url}')
         if pattern:
             try:
                 element = WebDriverWait(self.driver, timeout).until(
@@ -108,11 +109,11 @@ class SeleniumDriver:
             except Exception:
                 time.sleep(timeout)
 
-    def scroll_into(self, pattern, by=By.CSS_SELECTOR):
-        element = None
+    def scroll_into(self, pattern="", element=None, by=By.CSS_SELECTOR):
         while True:
             try:
-                element = self.driver.find_element(by, pattern)
+                if not element:
+                    element = self.find_element(by, pattern)
                 self.driver.execute_script(
                     "arguments[0].scrollIntoView({block: 'center', inline: 'nearest'})", element);
                 time.sleep(1)
@@ -120,6 +121,12 @@ class SeleniumDriver:
             except Exception:
                 time.sleep(.5)
         return element
+
+    def find_element(self, by, pattern):
+        return self.driver.find_element(by, pattern)
+    
+    def find_elements(self, by, pattern):
+        return self.driver.find_elements(by, pattern)
 
     @property
     def response(self):

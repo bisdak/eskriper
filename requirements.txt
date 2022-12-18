@@ -2,3 +2,5 @@ selenium-wire
 undetected-chromedriver
 
 pytest
+twine
+wheel

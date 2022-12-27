@@ -13,12 +13,20 @@ logging.basicConfig(
 
 class SeleniumDriver():
 
-    def __init__(self, proxy: str = '', user_agent: str = '', headless=True, download_path='./download_files', options=[]):
+    def __init__(self, 
+            proxy: str = '', 
+            user_agent: str = '', 
+            headless=True, 
+            download_path='./download_files', 
+            allow_img=False,
+            options=[]
+        ):
         self._headless = headless
         self._proxy = proxy
         self._user_agent = user_agent
         self._download_path = download_path
         self._input_options = options
+        self._allow_img = allow_img
         self._options = uc.ChromeOptions()
         self.setup_driver()
 
@@ -36,12 +44,17 @@ class SeleniumDriver():
         
         for option in self._input_options:
             self._options.add_argument(option)
-
+        
+        
         prefs = {
             "download.default_directory" : self._download_path,
             "profile.default_content_settings": {"images": 2},
             "profile.managed_default_content_settings": {"images": 2}
         }
+        if self._allow_img:
+            del prefs["profile.default_content_settings"]
+            del prefs["profile.managed_default_content_settings"]
+        
         self._options.add_experimental_option("prefs",prefs)
 
     def set_proxy(self, proxy=''):

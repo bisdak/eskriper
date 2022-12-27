@@ -13,11 +13,12 @@ logging.basicConfig(
 
 class SeleniumDriver():
 
-    def __init__(self, proxy: str = '', user_agent: str = '', headless=True, download_path='./download_files'):
+    def __init__(self, proxy: str = '', user_agent: str = '', headless=True, download_path='./download_files', options=[]):
         self._headless = headless
         self._proxy = proxy
         self._user_agent = user_agent
         self._download_path = download_path
+        self._input_options = options
         self._options = uc.ChromeOptions()
         self.setup_driver()
 
@@ -32,6 +33,9 @@ class SeleniumDriver():
     
     def set_options(self):
         self._options.headless = self._headless
+        
+        for option in self._input_options:
+            self._options.add_argument(option)
 
         prefs = {
             "download.default_directory" : self._download_path,
@@ -60,10 +64,16 @@ class SeleniumDriver():
             except:
                 logging.info('Element not found')
 
+    def find_element(self, path, by=By.CSS_SELECTOR):
+        return self.driver.find_element(by, path)
+
+    def find_elements(self, path, by=By.CSS_SELECTOR):
+        return self.driver.find_elements(by, path)
+
     def extract(self, pattern, by=By.CSS_SELECTOR, source=None, attr='text'):
         if not source:
             source = self.driver
-
+        
         if attr == 'text':
             result = source.find_element(by, pattern).text 
         else:
@@ -121,12 +131,6 @@ class SeleniumDriver():
             except Exception:
                 time.sleep(.5)
         return element
-
-    def find_element(self, by, pattern):
-        return self.driver.find_element(by, pattern)
-    
-    def find_elements(self, by, pattern):
-        return self.driver.find_elements(by, pattern)
 
     @property
     def response(self):

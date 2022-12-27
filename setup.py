@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='eskriper',
-      version='0.0.1',
+      version='0.2.0',
       description='Python helper utilities',
       author='Kristian Marlowe Ole',
       author_email='krismar.ole@gmail.com',

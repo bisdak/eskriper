@@ -136,7 +136,7 @@ class SeleniumDriver():
         while True:
             try:
                 if not element:
-                    element = self.find_element(by, pattern)
+                    element = self.find_element(pattern, by)
                 self.driver.execute_script(
                     "arguments[0].scrollIntoView({block: 'center', inline: 'nearest'})", element);
                 time.sleep(1)
@@ -144,13 +144,3 @@ class SeleniumDriver():
             except Exception:
                 time.sleep(.5)
         return element
-
-    @property
-    def response(self):
-        for request in self.driver.requests:
-            if request.response:
-                return request.response
-
-    @property
-    def user_agent(self):
-        return str(self.driver.execute_script("return navigator.userAgent;"))
